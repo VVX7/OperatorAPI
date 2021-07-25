@@ -8,7 +8,7 @@ import ../objects
 import strutils
 import requests, tables
 
-proc getProgram*(api: RestApi): Future[Table[string, Program]] {.async.} =
+proc getPrograms*(api: RestApi): Future[Table[string, Program]] {.async.} =
     ## Returns training programs.
     ## 
     result = (await api.request("GET", "/program")).fromJson(Table[string, Program])

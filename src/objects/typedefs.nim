@@ -5,6 +5,7 @@
 
 import tables
 import jsony
+import typetraits
 
 type
     RestError* = object of CatchableError
@@ -144,13 +145,28 @@ type
         audit*: Table[string, OperationAudit]
         opStart*: string
         opEnd*: string
+    FlagTemplate* = ref object
+        name*: string
+        data*: seq[string]
+    FlagResources* = ref object
+        links*: seq[string]
+    Flag* = ref object
+        id*: string
+        flagTemplate*: FlagTemplate
+        name*: string
+        challenge*: string
+        context*: string
+        resources*: FlagResources
+        answer*: string
+        hints*: seq[string]
+        blocks*: Table[string, string]
     Challenge* = ref object
         id*: string
         key*: string
         attempts*: int
         completed*: int
         difficulty*: int
-        flag*: string
+        flag*: Flag
     Course* = ref object
         id*: string
         name*: string
@@ -403,6 +419,47 @@ proc dumpHook*(s: var string, v: Attack) =
     s.dumpHook(v.modified)
     s.add '}'
 
+proc dumpHook*(s: var string, v: FlagTemplate) =
+    s.add '{'
+    s.add("\"name\":")
+    s.dumpHook(v.name)
+    s.add(", \"data\":")
+    s.dumpHook(v.data)
+    s.add '}' 
+
+proc dumpHook*(s: var string, v: FlagResources) =
+    s.add '{'
+    s.add("\"links\":")
+    s.dumpHook(v.links)
+    s.add '}' 
+
+proc renameHook*(v: var Flag, fieldName: var string) =
+  if fieldName == "template":
+    fieldName = "flagTemplate"
+
+proc dumpHook*(s: var string, v: Flag) =
+    s.add '{'
+    s.add("\"id\":")
+    s.dumpHook(v.id)
+    s.add(", \"template\":")
+    s.dumpHook(v.flagTemplate)
+    s.add(", \"name\":")
+    s.dumpHook(v.name)
+    s.add(", \"challenge\":")
+    s.dumpHook(v.challenge)
+    s.add(", \"context\":")
+    s.dumpHook(v.context)
+    s.add(", \"resources\":")
+    s.dumpHook(v.resources)
+    s.add(", \"answer\":")
+    s.dumpHook(v.answer)
+    if len(v.hints) > 0:
+        s.add(", \"hints\":")
+        s.dumpHook(v.hints)
+    s.add(", \"blocks\":")
+    s.dumpHook(v.blocks)
+    s.add '}' 
+
 proc dumpHook*(s: var string, v: Challenge) =
     s.add '{'
     s.add("\"id\":")
@@ -415,8 +472,9 @@ proc dumpHook*(s: var string, v: Challenge) =
     s.dumpHook(v.completed)
     s.add(", \"difficulty\":")
     s.dumpHook(v.difficulty)
-    s.add(", \"flag\":")
-    s.dumpHook(v.flag)
+    if not v.flag.isNil():
+        s.add(", \"flag\":")
+        s.dumpHook(v.flag)
     s.add '}'
 
 proc dumpHook*(s: var string, v: Course) =
