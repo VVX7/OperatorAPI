@@ -266,7 +266,7 @@ proc dumpHook*(s: var string, v: Fact) =
     s.dumpHook(v.ttp)
     s.add '}'
 
-proc renameHook*(v: var Agent, fieldName: var string) =
+proc renameHook*(v: var Agent|Schedule, fieldName: var string) =
   if fieldName == "range":
     fieldName = "agentRange"
 
@@ -310,6 +310,7 @@ proc dumpHook*(s: var string, v: Agent) =
     s.dumpHook(v.hostname)
     s.add(", \"state\":")
     s.dumpHook(v.state)
+    s.add(", \"key\":")
     s.add(", \"key\":")
     s.dumpHook(v.key)
     s.add(", \"busy\":")
@@ -503,4 +504,21 @@ proc dumpHook*(s: var string, v: Program) =
     if len(v.courses) > 0:
         s.add(", \"courses\":")
         s.dumpHook(v.courses)
+    s.add '}'
+
+proc dumpHook*(s: var string, v: Schedule) =
+    s.add '{'
+    s.add("\"range\":")
+    s.dumpHook(v.agentRange)
+    s.add(", \"adversary\":")
+    s.dumpHook(v.adversary)
+    s.add(", \"dayOfWeek\":")
+    s.dumpHook(v.dayOfWeek)
+    s.add(", \"hour\":")
+    s.dumpHook(v.hour)
+    s.add(", \"minute\":")
+    s.dumpHook(v.minute)
+    if name(v.timeout.type) == "int":
+        s.add(", \"timeout\":")
+        s.dumpHook(v.timeout)
     s.add '}'
