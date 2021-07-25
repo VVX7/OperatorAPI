@@ -43,7 +43,7 @@ type
         label*: string
         history*: seq[string]
         queue*: seq[string]
-        links*: seq[string]
+        links*: seq[Link]
         facts*: Table[string, seq[Fact]]
         locked*: bool
         location*: string
@@ -59,6 +59,21 @@ type
         agentRange*: string
         sleep*: int
         automaticFacts*: seq[Fact]
+    Link* = ref object
+        unique*: string
+        tag*: string
+        host*: string
+        platform*: string
+        timestamp*: int
+        ttp*: string
+        executor*: string
+        request*: string
+        response*: string
+        status*: int
+        pid*: int
+        tactic*: string
+        technique*: string
+        operation*: string
     Instruction* = ref object
         id*: string
         operation*: string
@@ -241,10 +256,10 @@ proc renameHook*(v: var Agent, fieldName: var string) =
 
 proc dumpHook*(s: var string, v: Agent) =
     s.add '{'
-    s.add("\"name\":")
-    s.dumpHook(v.name)
-    s.add(", \"label\":")
+    s.add("\"label\":")
     s.dumpHook(v.label)
+    s.add(", \"name\":")
+    s.dumpHook(v.name)
     if len(v.history) > 0:
         s.add(", \"history\":")
         s.dumpHook(v.history)

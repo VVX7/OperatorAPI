@@ -28,7 +28,6 @@ proc getAgent*(api: RestApi, agentID: string, facts = true, links = true): Futur
 proc taskAgent*(api: RestApi, agentID: string, task: Instruction): Future[string] {.async.} =
     ## Tasks an Instruction to the Agent by name.
     ## FIX ME
-    result = await api.request("POST", "/agent/" & agentID, task.toJson())
-
-
-
+    var data: Table[string, Instruction]
+    data["instruction"] = task
+    result = await api.request("POST", "/agent/" & agentID, data.toJson())
