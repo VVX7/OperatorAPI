@@ -8,20 +8,12 @@ import jsony
 import typetraits
 
 type
-    RestError* = object of CatchableError
-    OperatorClient* = ref object
-        api*: RestApi
-    RestApi* = ref object
+    Account* = ref object
+        email*: string
+        tag*: string
+        license*: string
+        badges*: seq[string]
         token*: string
-        port*: string
-        url*: string
-        endpoints*: Table[string, RequestStatus]
-    RequestStatus* = ref object
-        processing*: bool
-    Goal* = ref object
-        key*: string
-        val*: string
-        criteria*: string
     Adversary* = ref object
         id*: string
         name*: string
@@ -30,15 +22,6 @@ type
     AdversaryUpdate* = ref object
         add*: seq[string]
         remove*: seq[string]
-    AgentHandler* = ref object
-        name*: string
-        active*: bool
-    Fact* = ref object
-        host*: string
-        key*: string
-        value*: string
-        linkID*: string
-        ttp*: string
     Agent* = ref object
         name*: string
         label*: string
@@ -60,6 +43,93 @@ type
         agentRange*: string
         sleep*: int
         automaticFacts*: seq[Fact]
+    AgentHandler* = ref object
+        name*: string
+        active*: bool
+    Attack* = ref object
+        id*: string
+        name*: string
+        description*: string
+        tactic*: string
+        technique*: Technique
+        platforms*: Platform
+        metadata*: AttackMetadata
+        modified*: bool
+    AttackVersion* = ref object
+        version*: int
+        checksum*: string
+        license*: string
+        releaseDate*: string
+    AttackMetadata* = ref object
+        version*: int
+        license*: string
+        tags*: seq[string]
+        authors*: seq[string]
+        enabled*: bool
+        checksum*: string
+        releaseDate*: string
+        latest*: AttackVersion
+    Challenge* = ref object
+        id*: string
+        key*: string
+        attempts*: int
+        completed*: int
+        difficulty*: int
+        flag*: Flag
+    CommandVariant* = ref object
+        command*: string
+        payload*: string
+    Command* = ref object
+        command*: string
+        payload*: string
+        variants*: seq[CommandVariant]
+    Course* = ref object
+        id*: string
+        name*: string
+        description*: string
+        challenges*: seq[Challenge]
+    Executor* = ref object
+        psh*: Command
+        exec*: Command
+        cmd*: Command
+        sh*: Command
+        keyword*: Command
+    Fact* = ref object
+        host*: string
+        key*: string
+        value*: string
+        linkID*: string
+        ttp*: string
+    Flag* = ref object
+        id*: string
+        flagTemplate*: FlagTemplate
+        name*: string
+        challenge*: string
+        context*: string
+        resources*: FlagResources
+        answer*: string
+        hints*: seq[string]
+        blocks*: Table[string, string]
+    FlagTemplate* = ref object
+        name*: string
+        data*: seq[string]
+    FlagResources* = ref object
+        links*: seq[string]
+    Goal* = ref object
+        key*: string
+        val*: string
+        criteria*: string
+    InternalSettings* = ref object
+        local*: Workspace
+        identity*: string
+        account*: Account
+        version*: string
+    Instruction* = ref object
+        id*: string
+        operation*: string
+        ttp*: string
+        facts*: Table[string, string]
+        executor*: string
     Link* = ref object
         unique*: string
         tag*: string
@@ -75,66 +145,8 @@ type
         tactic*: string
         technique*: string
         operation*: string
-    Instruction* = ref object
-        id*: string
-        operation*: string
-        ttp*: string
-        facts*: Table[string, string]
-        executor*: string
-    Technique* = ref object
-        id*: string
-        name*: string
-    Tactic* = ref object
-        tactic*: string
-        techniques*: Table[string, Technique]
-    CommandVariant* = ref object
-        command*: string
-        payload*: string
-    Command* = ref object
-        command*: string
-        payload*: string
-        variants*: seq[CommandVariant]
-    AttackVersion* = ref object
-        version*: int
-        checksum*: string
-        license*: string
-        releaseDate*: string
-    AttackMetadata* = ref object
-        version*: int
-        license*: string
-        tags*: seq[string]
-        authors*: seq[string]
-        enabled*: bool
-        checksum*: string
-        releaseDate*: string
-        latest*: AttackVersion
-    Executor* = ref object
-        psh*: Command
-        exec*: Command
-        cmd*: Command
-        sh*: Command
-        keyword*: Command
-    Platform* = ref object
-        windows*: Executor
-        linux*: Executor
-        darwin*: Executor
-        global*: Executor
-    Attack* = ref object
-        id*: string
-        name*: string
-        description*: string
-        tactic*: string
-        technique*: Technique
-        platforms*: Platform
-        metadata*: AttackMetadata
-        modified*: bool
-    Schedule* = ref object
-        agentRange*: string
-        adversary*: string
-        dayOfWeek*: string
-        hour*: string
-        minute*: string
-        timeout*: int
+    OperatorClient* = ref object
+        api*: RestApi
     OperationAudit* = ref object
         status*: int
         links*: seq[string]
@@ -145,33 +157,8 @@ type
         audit*: Table[string, OperationAudit]
         opStart*: string
         opEnd*: string
-    FlagTemplate* = ref object
-        name*: string
-        data*: seq[string]
-    FlagResources* = ref object
-        links*: seq[string]
-    Flag* = ref object
-        id*: string
-        flagTemplate*: FlagTemplate
-        name*: string
-        challenge*: string
-        context*: string
-        resources*: FlagResources
-        answer*: string
-        hints*: seq[string]
-        blocks*: Table[string, string]
-    Challenge* = ref object
-        id*: string
-        key*: string
-        attempts*: int
-        completed*: int
-        difficulty*: int
-        flag*: Flag
-    Course* = ref object
-        id*: string
-        name*: string
-        description*: string
-        challenges*: seq[Challenge]
+    Preferences* = ref object
+        notices*: seq[string]
     Program* = ref object
         id*: string
         name*: string
@@ -182,16 +169,40 @@ type
         name*: string
         description*: string
         custom*: Table[string, string]
+    Platform* = ref object
+        windows*: Executor
+        linux*: Executor
+        darwin*: Executor
+        global*: Executor
+    Redirector* = ref object
+        name*: string
+    RestError* = object of CatchableError
+    RestApi* = ref object
+        token*: string
+        port*: string
+        url*: string
+        endpoints*: Table[string, RequestStatus]
+    RequestStatus* = ref object
+        processing*: bool
+    Schedule* = ref object
+        agentRange*: string
+        adversary*: string
+        dayOfWeek*: string
+        hour*: string
+        minute*: string
+        timeout*: int
+    Technique* = ref object
+        id*: string
+        name*: string
+    Tactic* = ref object
+        tactic*: string
+        techniques*: Table[string, Technique]
     WorkspaceKeys* = ref object
         agent*: seq[string]
         data*: seq[string]
     WorkspacePublisher* = ref object
         local*: bool
         prelude*: bool
-    Redirector* = ref object
-        name*: string
-    Preferences* = ref object
-        notices*: seq[string]
     Workspace* = ref object
         workspace*: string
         keys*: WorkspaceKeys
@@ -207,19 +218,6 @@ type
         protect*: int
         preferences*: Preferences
         gatekeepers*: seq[string]
-    Account* = ref object
-        email*: string
-        tag*: string
-        license*: string
-        badges*: seq[string]
-        token*: string
-    InternalSettings* = ref object
-        local*: Workspace
-        identity*: string
-        account*: Account
-        version*: string
-
-
 
 # jsony dumpHooks
 # https://github.com/treeform/jsony#proc-dumphook-can-be-used-to-serializer-into-custom-representation
@@ -244,26 +242,6 @@ proc dumpHook*(s: var string, v: Adversary) =
         s.dumpHook(v.goals)
     s.add(", \"ttps\":")
     s.dumpHook(v.ttps)
-    s.add '}'
-
-proc dumpHook*(s: var string, v: AgentHandler) =
-    s.add '{'
-    s.add("\"name\":")
-    s.dumpHook(v.name)
-    s.add '}'
-
-proc dumpHook*(s: var string, v: Fact) =
-    s.add '{'
-    s.add("\"host\":")
-    s.dumpHook(v.host)
-    s.add(", \"key\":")
-    s.dumpHook(v.key)
-    s.add(", \"value\":")
-    s.dumpHook(v.value)
-    s.add(", \"linkID\":")
-    s.dumpHook(v.linkID)
-    s.add(", \"ttp\":")
-    s.dumpHook(v.ttp)
     s.add '}'
 
 proc renameHook*(v: var Agent|Schedule, fieldName: var string) =
@@ -331,51 +309,30 @@ proc dumpHook*(s: var string, v: Agent) =
         s.dumpHook(v.automaticFacts)
     s.add '}'
 
-proc dumpHook*(s: var string, v: Instruction) =
+proc dumpHook*(s: var string, v: AgentHandler) =
     s.add '{'
-    s.add("\"id\":")
-    s.dumpHook(v.id)
-    s.add(", \"operation\":")
-    s.dumpHook(v.operation)
-    s.add(", \"ttp\":")
-    s.dumpHook(v.ttp)
-    s.add(", \"facts\":")
-    s.dumpHook(v.facts)
-    s.add(", \"executor\":")
-    s.dumpHook(v.executor)
+    s.add("\"name\":")
+    s.dumpHook(v.name)
     s.add '}'
 
-proc dumpHook*(s: var string, v: Command) =
-    s.add '{'
-    s.add("\"command\":")
-    s.dumpHook(v.command)
-    s.add(", \"payload\":")
-    s.dumpHook(v.payload)
-    if len(v.variants) > 0:
-        s.add(", \"variants\":")
-        s.dumpHook(v.variants)
-    s.add '}'
-
-proc dumpHook*(s: var string, v: Executor|Platform) =
-    var first: bool = true
-    s.add '{'
-    for name, value in v[].fieldPairs:
-        if not value.isNil():
-            if first:
-                s.add("\"" & name & "\":")
-                s.dumpHook(value)
-                first = false
-            else:
-                s.add(", \"" & name & "\":")
-                s.dumpHook(value)
-    s.add '}'
-
-proc dumpHook*(s: var string, v: Technique) =
+proc dumpHook*(s: var string, v: Attack) =
     s.add '{'
     s.add("\"id\":")
     s.dumpHook(v.id)
     s.add(", \"name\":")
-    s.dumpHook(v.name)
+    s.dumpHook(v.description)
+    s.add(", \"description\":")
+    s.dumpHook(v.description)
+    s.add(", \"tactic\":")
+    s.dumpHook(v.tactic)
+    s.add(", \"technique\":")
+    s.dumpHook(v.technique)
+    s.add(", \"platforms\":")
+    s.dumpHook(v.platforms)
+    s.add(", \"metadata\":")
+    s.dumpHook(v.metadata)
+    s.add(", \"modified\":")
+    s.dumpHook(v.modified)
     s.add '}'
 
 proc dumpHook*(s: var string, v: AttackMetadata) =
@@ -399,67 +356,6 @@ proc dumpHook*(s: var string, v: AttackMetadata) =
         s.add(", \"latest\":")
         s.dumpHook(v.latest)
     s.add '}'
-
-proc dumpHook*(s: var string, v: Attack) =
-    s.add '{'
-    s.add("\"id\":")
-    s.dumpHook(v.id)
-    s.add(", \"name\":")
-    s.dumpHook(v.description)
-    s.add(", \"description\":")
-    s.dumpHook(v.description)
-    s.add(", \"tactic\":")
-    s.dumpHook(v.tactic)
-    s.add(", \"technique\":")
-    s.dumpHook(v.technique)
-    s.add(", \"platforms\":")
-    s.dumpHook(v.platforms)
-    s.add(", \"metadata\":")
-    s.dumpHook(v.metadata)
-    s.add(", \"modified\":")
-    s.dumpHook(v.modified)
-    s.add '}'
-
-proc dumpHook*(s: var string, v: FlagTemplate) =
-    s.add '{'
-    s.add("\"name\":")
-    s.dumpHook(v.name)
-    s.add(", \"data\":")
-    s.dumpHook(v.data)
-    s.add '}' 
-
-proc dumpHook*(s: var string, v: FlagResources) =
-    s.add '{'
-    s.add("\"links\":")
-    s.dumpHook(v.links)
-    s.add '}' 
-
-proc renameHook*(v: var Flag, fieldName: var string) =
-  if fieldName == "template":
-    fieldName = "flagTemplate"
-
-proc dumpHook*(s: var string, v: Flag) =
-    s.add '{'
-    s.add("\"id\":")
-    s.dumpHook(v.id)
-    s.add(", \"template\":")
-    s.dumpHook(v.flagTemplate)
-    s.add(", \"name\":")
-    s.dumpHook(v.name)
-    s.add(", \"challenge\":")
-    s.dumpHook(v.challenge)
-    s.add(", \"context\":")
-    s.dumpHook(v.context)
-    s.add(", \"resources\":")
-    s.dumpHook(v.resources)
-    s.add(", \"answer\":")
-    s.dumpHook(v.answer)
-    if len(v.hints) > 0:
-        s.add(", \"hints\":")
-        s.dumpHook(v.hints)
-    s.add(", \"blocks\":")
-    s.dumpHook(v.blocks)
-    s.add '}' 
 
 proc dumpHook*(s: var string, v: Challenge) =
     s.add '{'
@@ -489,6 +385,100 @@ proc dumpHook*(s: var string, v: Course) =
     if len(v.challenges) > 0:
         s.add(", \"challenges\":")
         s.dumpHook(v.challenges)
+    s.add '}'
+
+proc dumpHook*(s: var string, v: Command) =
+    s.add '{'
+    s.add("\"command\":")
+    s.dumpHook(v.command)
+    s.add(", \"payload\":")
+    s.dumpHook(v.payload)
+    if len(v.variants) > 0:
+        s.add(", \"variants\":")
+        s.dumpHook(v.variants)
+    s.add '}'
+
+proc dumpHook*(s: var string, v: Executor|Platform) =
+    var first: bool = true
+    s.add '{'
+    for name, value in v[].fieldPairs:
+        if not value.isNil():
+            if first:
+                s.add("\"" & name & "\":")
+                s.dumpHook(value)
+                first = false
+            else:
+                s.add(", \"" & name & "\":")
+                s.dumpHook(value)
+    s.add '}'
+
+proc dumpHook*(s: var string, v: Fact) =
+    s.add '{'
+    s.add("\"host\":")
+    s.dumpHook(v.host)
+    s.add(", \"key\":")
+    s.dumpHook(v.key)
+    s.add(", \"value\":")
+    s.dumpHook(v.value)
+    s.add(", \"linkID\":")
+    s.dumpHook(v.linkID)
+    s.add(", \"ttp\":")
+    s.dumpHook(v.ttp)
+    s.add '}'
+
+proc renameHook*(v: var Flag, fieldName: var string) =
+  if fieldName == "template":
+    fieldName = "flagTemplate"
+
+proc dumpHook*(s: var string, v: Flag) =
+    s.add '{'
+    s.add("\"id\":")
+    s.dumpHook(v.id)
+    s.add(", \"template\":")
+    s.dumpHook(v.flagTemplate)
+    s.add(", \"name\":")
+    s.dumpHook(v.name)
+    s.add(", \"challenge\":")
+    s.dumpHook(v.challenge)
+    s.add(", \"context\":")
+    s.dumpHook(v.context)
+    s.add(", \"resources\":")
+    s.dumpHook(v.resources)
+    s.add(", \"answer\":")
+    s.dumpHook(v.answer)
+    if len(v.hints) > 0:
+        s.add(", \"hints\":")
+        s.dumpHook(v.hints)
+    s.add(", \"blocks\":")
+    s.dumpHook(v.blocks)
+    s.add '}' 
+
+proc dumpHook*(s: var string, v: FlagTemplate) =
+    s.add '{'
+    s.add("\"name\":")
+    s.dumpHook(v.name)
+    s.add(", \"data\":")
+    s.dumpHook(v.data)
+    s.add '}' 
+
+proc dumpHook*(s: var string, v: FlagResources) =
+    s.add '{'
+    s.add("\"links\":")
+    s.dumpHook(v.links)
+    s.add '}' 
+
+proc dumpHook*(s: var string, v: Instruction) =
+    s.add '{'
+    s.add("\"id\":")
+    s.dumpHook(v.id)
+    s.add(", \"operation\":")
+    s.dumpHook(v.operation)
+    s.add(", \"ttp\":")
+    s.dumpHook(v.ttp)
+    s.add(", \"facts\":")
+    s.dumpHook(v.facts)
+    s.add(", \"executor\":")
+    s.dumpHook(v.executor)
     s.add '}'
 
 proc dumpHook*(s: var string, v: Program) =
@@ -521,4 +511,12 @@ proc dumpHook*(s: var string, v: Schedule) =
     if name(v.timeout.type) == "int":
         s.add(", \"timeout\":")
         s.dumpHook(v.timeout)
+    s.add '}'
+
+proc dumpHook*(s: var string, v: Technique) =
+    s.add '{'
+    s.add("\"id\":")
+    s.dumpHook(v.id)
+    s.add(", \"name\":")
+    s.dumpHook(v.name)
     s.add '}'
